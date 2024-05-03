@@ -15,14 +15,7 @@ collection.drop()
 
 directory = "data"
 
-counter = 0
-
-
 for filename in os.listdir(directory):
-    counter += 1
-    if counter > 50:
-        break
-    else:
         with open(os.path.join(directory, filename)) as f:
             # assuming you have defined a connection to your db and collection already:
             # Loading or Opening the json file
@@ -30,6 +23,7 @@ for filename in os.listdir(directory):
                 file_data = json.load(f)
             except Exception as e:
                 print(e, "error when loading", f)
+                continue
 
 # Inserting the loaded data in the collection
 # if JSON contains data more than one entry
@@ -38,20 +32,12 @@ for filename in os.listdir(directory):
             if isinstance(file_data, list):
                 try:
                     collection.insert_many(file_data)
-                except errors.DuplicateKeyError as dke:
-                    print(f"Duplicate key error for {filename}: {dke}")
-                    continue
-                except errors.PyMongoError as pme:
-                    print(f"Other MongoDB error for {filename}: {pme}")
                 except Exception as e:
                     print(e, "when importing into Mongo")
+                    continue
             else:
                 try:
                     collection.insert_one(file_data)
-                except errors.DuplicateKeyError as dke:
-                    print(f"Duplicate key error for {filename}: {dke}")
-                    continue
-                except errors.PyMongoError as pme:
-                    print(f"Other MongoDB error for {filename}: {pme}")
                 except Exception as e:
                     print(e)
+                    continue
